@@ -1,18 +1,17 @@
-##plot1
-##The file "household_power_consumption.txt" has been downloaded to my working directory
-##read table to dat using header=TRUE for variable names, as.is=TRUE for character instead for factor, seperate by ";"
+##This R code answer the first question, show the total pm2.5 emissions by year
 
-dat <- read.table("household_power_consumption.txt",sep=";", as.is=TRUE,header=TRUE)
+##Read in data from my working directory
 
-##subset data set only for two days
+NEI <- readRDS("summarySCC_PM25.rds")
 
-subdata <- subset(dat, dat$Date=="1/2/2007" | dat$Date=="2/2/2007")
+##Sum of pm2.5 emissions by year
 
-##create graph
+sumpm25 <- with(NEI,aggregate(Emissions, by=list(year), sum))
 
-hist(as.numeric(subdata$Global_active_power),col="red",main="Global Active Power", xlab="Global Active Power (kilowatts)")
+##Plot the total pm2.5 emissions by year
 
-##copy graph to plot1.png and close device
+plot(sumpm25,xlab="year",ylab="PM2.5 Emissions",main="Total PM2.5 Emissions by Year",type="o",col="red",lty=5,pch=8)
 
+##Copy graph to png file and close device
 dev.copy(png, file="plot1.png", width=480, height=480, units="px")
 dev.off()

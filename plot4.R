@@ -1,29 +1,28 @@
-##plot4
-##The file "household_power_consumption.txt" has been downloaded to my working directory
-##read table to dat using header=TRUE for variable names, as.is=TRUE for character instead for factor, seperate by ";"
+##This R code answer the question 4, show the pm2.5 emissions for coal realted emissions by type and year
 
-dat <- read.table("household_power_consumption.txt",sep=";", as.is=TRUE,header=TRUE)
+##Read in data from my working directory
 
-##subset data set only for two days
+NEI <- readRDS("summarySCC_PM25.rds")
+SCC <- readRDS("Source_Classification_Code.rds")
 
-subdata <- subset(dat, dat$Date=="1/2/2007" | dat$Date=="2/2/2007")
+##Pick up source of coal in SCC file
+ 
+coal <- SCC[grepl("Coal",SCC$Short.Name),]
 
-##create new date and time variable
+##Subset data for all including coal
 
-subdata$newdate <- with(subdata, as.POSIXct(paste(Date,Time),format="%d/%m/%Y %H:%M:%S"))
+coalNEI <- NEI[NEI$SCC %in% coalSCC$SCC,]
 
-##plot graph
+##Sum of pm2.5 emissions by type and year
 
-par(mfrow=c(2,2))
-plot(subdata$newdate, as.numeric(subdata$Global_active_power),type="l",xlab="",ylab="Global Active Power")
-plot(subdata$newdate, as.numeric(subdata$Voltage),type="l",xlab="datetime",ylab="Voltage")
-plot(subdata$newdate,as.numeric(subdata$Sub_metering_1),type="l",xlab="",ylab="Energy sub metering")
-lines(subdata$newdate,as.numeric(subdata$Sub_metering_2),col="red")
-lines(subdata$newdate,as.numeric(subdata$Sub_metering_3),col="blue")
-legend("topright",lty=1,col=c("black","red","blue"),legend=c("Sub_metering_1","Sub_metering_2","Sub_metering_3"),cex=0.5)
-plot(subdata$newdate, as.numeric(subdata$Global_reactive_power),type="l",xlab="datetime",ylab="Global_reactive_power")
+sumpm25 <- aggregate(list(Emissions=coalNEI$Emissions), by=list(type=coalNEI$type,year=coalNEI$year), sum)
 
-##copy graph to plot4.png and close device
+##Plot the total pm2.5 emissions by type and year
 
+g <- qplot(year,Emissions, data=sumpm25,color=type,geom="line")
+g+ggtitle("Coal Related PM2.5 Emissions by Type and Year")+xlab("Year")+ylab("Coal Related PM2.5 Emissions")
+
+##Copy graph to png file and close device
 dev.copy(png, file="plot4.png", width=480, height=480, units="px")
 dev.off()
+rweq

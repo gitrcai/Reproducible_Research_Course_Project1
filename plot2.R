@@ -1,22 +1,21 @@
-##plot2
-##The file "household_power_consumption.txt" has been downloaded to my working directory
-##read table to dat using header=TRUE for variable names, as.is=TRUE for character instead for factor, seperate by ";"
+##This R code answer the question 2, show the pm2.5 emissions for Baltimore City by year
 
-dat <- read.table("household_power_consumption.txt",sep=";", as.is=TRUE,header=TRUE)
+##Read in data from my working directory
 
-##subset data set only for two days
+NEI <- readRDS("summarySCC_PM25.rds")
 
-subdata <- subset(dat, dat$Date=="1/2/2007" | dat$Date=="2/2/2007")
+##Subset data only for Baltimore City
 
-##create new date and time variable
+Baltimore <- subset(NEI,fips=="24510")
 
-subdata$newdate <- with(subdata, as.POSIXct(paste(Date,Time),format="%d/%m/%Y %H:%M:%S"))
+##Sum of pm2.5 emissions by year
 
-##plot graph
+sumpm25 <- with(Baltimore,aggregate(Emissions, by=list(year), sum))
 
-plot(subdata$newdate, as.numeric(subdata$Global_active_power),type="l",xlab="",ylab="Global Active Power (kilowatts)")
+##Plot the total pm2.5 emissions by year
 
-##copy graph to plot2.png and close device
+plot(sumpm25,xlab="year",ylab="PM2.5 Emissions",main="Total PM2.5 Emissions in Baltimore City by Year",type="o",col="red",lty=5,pch=8)
 
+##Copy graph to png file and close device
 dev.copy(png, file="plot2.png", width=480, height=480, units="px")
 dev.off()
